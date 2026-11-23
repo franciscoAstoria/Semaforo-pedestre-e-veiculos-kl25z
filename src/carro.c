@@ -30,6 +30,29 @@ static void carro_verde_thread(void *p1, void *p2, void *p3)
     }
 }
 
+/* Modo noturno: 1 s aceso / 1 s apagado. A decisao de sair e tomada no
+ * MEIO do periodo (LED apagado); o pedestre confere no INICIO do periodo,
+ * entao os dois sempre saem juntos, sem disputa. */
+static void amarelo_pisca_noturno(void)
+{
+    int64_t t = t0_noturno;
+
+    while (1) {
+        dormir_ate(t);
+        led_set(CARRO_AMARELO, true);
+        dormir_ate(t + T_PISCA_MS);
+        led_set(CARRO_AMARELO, false);
+
+        if (!pedido_noturno) {
+            modo = MODO_DIA;
+            log_evento("MODO DIA");
+            dormir_ate(t + 2 * T_PISCA_MS);
+            return;
+        }
+        t += 2 * T_PISCA_MS;
+    }
+}
+
 static void carro_amarelo_thread(void *p1, void *p2, void *p3)
 {
     ARG_UNUSED(p1);
@@ -39,6 +62,15 @@ static void carro_amarelo_thread(void *p1, void *p2, void *p3)
     while (1) {
         k_sem_take(&vez_carro_amarelo, K_FOREVER);
         k_mutex_lock(&mutex_carro, K_FOREVER);
+
+        if (modo == MODO_NOTURNO) {
+            amarelo_pisca_noturno();
+            k_mutex_unlock(&mutex_carro);
+            /* so volta ao verde depois do pedestre estar vermelho fixo */
+            k_sem_take(&pedestres_parados, K_FOREVER);
+            k_sem_give(&vez_carro_verde);
+            continue;
+        }
 
         led_set(CARRO_AMARELO, true);
         k_msleep(T_CARRO_AMARELO_MS);
@@ -65,6 +97,12 @@ static void carro_vermelho_thread(void *p1, void *p2, void *p3)
         led_set(CARRO_VERMELHO, false);
 
         k_mutex_unlock(&mutex_carro);
+
+        if (pedido_noturno) {        /* fim de ciclo = ponto seguro */
+            entra_modo_noturno();
+            k_sem_give(&vez_carro_amarelo);
+            continue;
+        }
         k_sem_give(&vez_carro_verde);
     }
 }
@@ -94,6 +132,21 @@ static void carro_stub_thread(void *p1, void *p2, void *p3)
         log_evento("STUB carro vermelho");
         k_sem_give(&libera_pedestre);
         k_sem_take(&pedestres_parados, K_FOREVER);
+
+        if (pedido_noturno) {
+            entra_modo_noturno();
+            int64_t t = t0_noturno;
+            while (1) {
+                dormir_ate(t + T_PISCA_MS);   /* meio do periodo */
+                if (!pedido_noturno) {
+                    break;
+                }
+                t += 2 * T_PISCA_MS;
+            }
+            modo = MODO_DIA;
+            log_evento("MODO DIA");
+            k_sem_take(&pedestres_parados, K_FOREVER);
+        }
         k_sem_give(&vez_carro_verde);
     }
 }

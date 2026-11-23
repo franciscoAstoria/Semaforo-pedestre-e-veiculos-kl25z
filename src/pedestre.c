@@ -11,6 +11,24 @@
 #if MODO_TESTE != MODO_TESTE_SO_CARRO
 /* ===================== IMPLEMENTACAO REAL ===================== */
 
+/* Modo noturno: confere o modo no INICIO de cada periodo de 2 s
+ * (o carro decide sair no meio do periodo). */
+static void vermelho_pisca_noturno(void)
+{
+    int64_t t = t0_noturno;
+
+    while (1) {
+        dormir_ate(t);
+        if (modo != MODO_NOTURNO) {
+            return;
+        }
+        led_set(PED_VERMELHO, true);
+        dormir_ate(t + T_PISCA_MS);
+        led_set(PED_VERMELHO, false);
+        t += 2 * T_PISCA_MS;
+    }
+}
+
 static void ped_vermelho_thread(void *p1, void *p2, void *p3)
 {
     ARG_UNUSED(p1);
@@ -26,6 +44,13 @@ static void ped_vermelho_thread(void *p1, void *p2, void *p3)
 
         /* fica vermelho ate o semaforo de carros liberar */
         k_sem_take(&libera_pedestre, K_FOREVER);
+        while (modo == MODO_NOTURNO) {          /* liberado para piscar     */
+            led_set(PED_VERMELHO, false);
+            vermelho_pisca_noturno();
+            led_set(PED_VERMELHO, true);        /* volta ao vermelho fixo   */
+            k_sem_give(&pedestres_parados);
+            k_sem_take(&libera_pedestre, K_FOREVER);
+        }
         led_set(PED_VERMELHO, false);
 
         k_mutex_unlock(&mutex_pedestre);
@@ -71,6 +96,12 @@ static void pedestre_stub_thread(void *p1, void *p2, void *p3)
     while (1) {
         k_sem_give(&pedestres_parados);
         k_sem_take(&libera_pedestre, K_FOREVER);
+        if (modo == MODO_NOTURNO) {
+            while (modo == MODO_NOTURNO) {
+                k_msleep(10);
+            }
+            continue;
+        }
         log_evento("STUB pedestre atravessando (%d ms)", T_CARRO_VERMELHO_MS);
         k_msleep(T_CARRO_VERMELHO_MS);
     }

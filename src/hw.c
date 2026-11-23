@@ -11,6 +11,7 @@
 #include "config.h"
 #include "hw.h"
 
+static const struct device *const gpio_a = DEVICE_DT_GET(DT_NODELABEL(gpioa));
 static const struct device *const gpio_b = DEVICE_DT_GET(DT_NODELABEL(gpiob));
 static const struct device *const gpio_d = DEVICE_DT_GET(DT_NODELABEL(gpiod));
 
@@ -108,6 +109,7 @@ void log_evento(const char *fmt, ...)
 int hw_init(void)
 {
     if (!device_is_ready(gpio_b) || !device_is_ready(gpio_d)
+        || !device_is_ready(gpio_a)
         ) {
         printk("# ERRO: GPIO nao esta pronto\n");
         return -ENODEV;
@@ -118,6 +120,7 @@ int hw_init(void)
     gpio_pin_configure(gpio_b, PINO_RGB_VERDE, GPIO_OUTPUT_HIGH);
     gpio_pin_configure(gpio_b, PINO_PED_VERMELHO, GPIO_OUTPUT_LOW);
     gpio_pin_configure(gpio_d, PINO_PED_VERDE, GPIO_OUTPUT_LOW);
+    gpio_pin_configure(gpio_a, PINO_CHAVE_NOTURNO, GPIO_INPUT | GPIO_PULL_UP);
 
     pronto = true;
     return 0;
@@ -126,4 +129,9 @@ int hw_init(void)
 bool hw_pronto(void)
 {
     return pronto;
+}
+
+bool hw_chave_noturno(void)
+{
+    return gpio_pin_get_raw(gpio_a, PINO_CHAVE_NOTURNO) == 0;
 }

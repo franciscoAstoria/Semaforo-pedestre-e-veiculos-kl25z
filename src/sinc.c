@@ -24,3 +24,28 @@ K_SEM_DEFINE(vez_ped_vermelho, 0, 1);
 
 K_SEM_DEFINE(libera_pedestre, 0, 1);
 K_SEM_DEFINE(pedestres_parados, 0, 1);
+
+volatile modo_t modo = MODO_DIA;
+volatile bool pedido_noturno;
+int64_t t0_noturno;
+
+/* Dorme ate um instante absoluto (evita acumular atraso no pisca). */
+void dormir_ate(int64_t instante_ms)
+{
+    int64_t falta = instante_ms - k_uptime_get();
+
+    if (falta > 0) {
+        k_msleep((int32_t)falta);
+    }
+}
+
+/* Chamada SEMPRE no fim de um ciclo (carro vermelho acabou de apagar e o
+ * pedestre esta vermelho fixo): e o ponto seguro para trocar de modo.
+ * Quem chama ainda precisa acordar o lado dos carros. */
+void entra_modo_noturno(void)
+{
+    modo = MODO_NOTURNO;
+    t0_noturno = k_uptime_get() + 20; /* mesma referencia para os 2 piscas */
+    log_evento("MODO NOTURNO");
+    k_sem_give(&libera_pedestre);     /* pedestre vermelho comeca a piscar */
+}

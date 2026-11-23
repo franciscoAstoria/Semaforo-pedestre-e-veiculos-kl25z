@@ -25,4 +25,6 @@ void led_set(led_t led, bool aceso);
 /* Imprime "[t ms] EVT <mensagem>" */
 void log_evento(const char *fmt, ...) __attribute__((format(printf, 1, 2)));
 
+bool hw_chave_noturno(void); /* true = chave ligada (modo noturno pedido) */
+
 #endif /* SEMAFORO_HW_H */

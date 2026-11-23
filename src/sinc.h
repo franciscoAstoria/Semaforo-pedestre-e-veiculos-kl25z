@@ -26,4 +26,13 @@ extern struct k_sem vez_ped_vermelho;
 extern struct k_sem libera_pedestre;
 extern struct k_sem pedestres_parados;
 
+typedef enum { MODO_DIA = 0, MODO_NOTURNO = 1 } modo_t;
+
+extern volatile modo_t modo;           /* modo atual do sistema            */
+extern volatile bool   pedido_noturno; /* estado (filtrado) da chave       */
+extern int64_t         t0_noturno;     /* instante de referencia do pisca  */
+
+void entra_modo_noturno(void);
+void dormir_ate(int64_t instante_ms);
+
 #endif /* SEMAFORO_SINC_H */
