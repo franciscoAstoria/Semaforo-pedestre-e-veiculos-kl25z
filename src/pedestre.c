@@ -8,6 +8,7 @@
 #include "hw.h"
 #include "sinc.h"
 
+#if MODO_TESTE != MODO_TESTE_SO_CARRO
 /* ===================== IMPLEMENTACAO REAL ===================== */
 
 static void ped_vermelho_thread(void *p1, void *p2, void *p3)
@@ -55,3 +56,26 @@ K_THREAD_DEFINE(ped_vermelho, PILHA_THREAD, ped_vermelho_thread,
                 NULL, NULL, NULL, PRIO_LEDS, 0, 0);
 K_THREAD_DEFINE(ped_verde, PILHA_THREAD, ped_verde_thread,
                 NULL, NULL, NULL, PRIO_LEDS, 0, 0);
+
+#else /* MODO_TESTE == MODO_TESTE_SO_CARRO */
+/* ===================== STUB (teste unitario do carro) =====================
+ * Simula o semaforo de pedestres SEM acender LED. */
+
+static void pedestre_stub_thread(void *p1, void *p2, void *p3)
+{
+    ARG_UNUSED(p1);
+    ARG_UNUSED(p2);
+    ARG_UNUSED(p3);
+
+    k_sem_take(&vez_ped_vermelho, K_FOREVER);   /* partida dada pelo main */
+    while (1) {
+        k_sem_give(&pedestres_parados);
+        k_sem_take(&libera_pedestre, K_FOREVER);
+        log_evento("STUB pedestre atravessando (%d ms)", T_CARRO_VERMELHO_MS);
+        k_msleep(T_CARRO_VERMELHO_MS);
+    }
+}
+
+K_THREAD_DEFINE(pedestre_stub, PILHA_THREAD, pedestre_stub_thread,
+                NULL, NULL, NULL, PRIO_LEDS, 0, 0);
+#endif

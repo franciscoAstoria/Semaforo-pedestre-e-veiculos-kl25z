@@ -36,7 +36,7 @@
 #define MODO_TESTE_SO_PEDESTRE 2
 
 #ifndef MODO_TESTE
-#define MODO_TESTE MODO_TESTE_SO_PEDESTRE
+#define MODO_TESTE MODO_TESTE_SO_CARRO
 #endif
 
 /* ===================== THREADS ===================== */
