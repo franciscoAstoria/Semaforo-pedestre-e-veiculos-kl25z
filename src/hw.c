@@ -71,6 +71,14 @@ static void verifica_seguranca(void)
     if (pedestres > 1) {
         erro_seguranca("dois LEDs do semaforo de pedestres acesos ao mesmo tempo");
     }
+#if MODO_TESTE == MODO_COMPLETO
+    if (aceso_agora[PED_VERDE] && !aceso_agora[CARRO_VERMELHO]) {
+        erro_seguranca("pedestre VERDE sem carro VERMELHO");
+    }
+    if (aceso_agora[CARRO_VERDE] && !aceso_agora[PED_VERMELHO]) {
+        erro_seguranca("carro VERDE sem pedestre VERMELHO");
+    }
+#endif
 }
 
 void led_set(led_t led, bool aceso)
