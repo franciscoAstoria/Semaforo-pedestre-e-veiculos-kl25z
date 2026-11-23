@@ -24,4 +24,23 @@
 #define T_PED_VERDE_MS        4000
 #define T_PED_VERMELHO_MS     4000  /* = carro verde + carro amarelo    */
 
+/* ===================== MODO DE TESTE =====================
+ * MODO_COMPLETO          -> sistema inteiro (uso normal)
+ * MODO_TESTE_SO_CARRO    -> teste unitario do semaforo de carros
+ *                           (pedestre substituido por um "stub" sem LEDs)
+ * MODO_TESTE_SO_PEDESTRE -> teste unitario do semaforo de pedestres
+ *                           (carro substituido por um "stub" sem LEDs)
+ */
+#define MODO_COMPLETO          0
+#define MODO_TESTE_SO_CARRO    1
+#define MODO_TESTE_SO_PEDESTRE 2
+
+#ifndef MODO_TESTE
+#define MODO_TESTE MODO_TESTE_SO_PEDESTRE
+#endif
+
+/* ===================== THREADS ===================== */
+#define PILHA_THREAD   1024
+#define PRIO_LEDS      5     /* threads dos LEDs                         */
+
 #endif /* SEMAFORO_CONFIG_H */

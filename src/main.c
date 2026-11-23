@@ -1,12 +1,14 @@
 /*
  * main.c - inicializacao
- * Fase 1: teste de hardware (cada LED acende 1 s, em sequencia).
+ * As threads sao criadas automaticamente por K_THREAD_DEFINE; o main so
+ * configura o hardware e da a partida em estado seguro.
  */
 #include <zephyr/kernel.h>
 #include <zephyr/sys/printk.h>
 
 #include "config.h"
 #include "hw.h"
+#include "sinc.h"
 
 int main(void)
 {
@@ -14,18 +16,14 @@ int main(void)
         return 0;
     }
 
-    static const led_t ordem[] = {
-        CARRO_VERDE, CARRO_AMARELO, CARRO_VERMELHO, PED_VERDE, PED_VERMELHO,
-    };
+    printk("# Semaforos de veiculos e pedestres - Zephyr / FRDM-KL25Z\n");
+    printk("# MODO_TESTE=%d (0=completo, 1=so carro, 2=so pedestre)\n",
+           MODO_TESTE);
 
-    printk("# Fase 1 - teste de hardware: cada LED acende por 1 s\n");
-    while (1) {
-        for (size_t i = 0; i < ARRAY_SIZE(ordem); i++) {
-            led_set(ordem[i], true);
-            k_msleep(1000);
-            led_set(ordem[i], false);
-        }
-    }
+    /* Partida segura: pedestre vermelho ANTES de qualquer verde p/ carros */
+    k_sem_give(&vez_ped_vermelho);
+    k_sem_take(&pedestres_parados, K_FOREVER);
+    k_sem_give(&vez_carro_verde);
 
     return 0;
 }
