@@ -115,13 +115,17 @@ int hw_init(void)
         return -ENODEV;
     }
 
-    /* todos os LEDs comecam apagados */
-    gpio_pin_configure(gpio_b, PINO_RGB_VERMELHO, GPIO_OUTPUT_HIGH);
-    gpio_pin_configure(gpio_b, PINO_RGB_VERDE, GPIO_OUTPUT_HIGH);
-    gpio_pin_configure(gpio_b, PINO_PED_VERMELHO, GPIO_OUTPUT_LOW);
-    gpio_pin_configure(gpio_d, PINO_PED_VERDE, GPIO_OUTPUT_LOW);
-    gpio_pin_configure(gpio_a, PINO_CHAVE_NOTURNO, GPIO_INPUT | GPIO_PULL_UP);
-    gpio_pin_configure(gpio_d, PINO_BOTAO, GPIO_INPUT | GPIO_PULL_UP);
+    /* todos os LEDs comecam apagados. Se algum pino falhar, o sistema nao
+     * inicia o ciclo: as threads ficam paradas esperando a partida. */
+    if (gpio_pin_configure(gpio_b, PINO_RGB_VERMELHO, GPIO_OUTPUT_HIGH) != 0 ||
+        gpio_pin_configure(gpio_b, PINO_RGB_VERDE, GPIO_OUTPUT_HIGH) != 0 ||
+        gpio_pin_configure(gpio_b, PINO_PED_VERMELHO, GPIO_OUTPUT_LOW) != 0 ||
+        gpio_pin_configure(gpio_d, PINO_PED_VERDE, GPIO_OUTPUT_LOW) != 0 ||
+        gpio_pin_configure(gpio_a, PINO_CHAVE_NOTURNO, GPIO_INPUT | GPIO_PULL_UP) != 0 ||
+        gpio_pin_configure(gpio_d, PINO_BOTAO, GPIO_INPUT | GPIO_PULL_UP) != 0) {
+        printk("# ERRO: falha ao configurar os pinos\n");
+        return -EIO;
+    }
 
     pronto = true;
     return 0;

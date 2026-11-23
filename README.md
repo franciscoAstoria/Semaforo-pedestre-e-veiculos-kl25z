@@ -10,6 +10,8 @@ Atividade PSI – Microcontroladores 2 – Aula 07. Feita individualmente, com a
 | Noturno (chave D8 no GND) | amarelo pisca 1 s / 1 s | vermelho pisca 1 s / 1 s |
 | Botão (D2) durante o verde | verde encerra na hora → amarelo 1 s → vermelho | pedestre verde 4 s |
 
+> **Adaptação do semáforo de veículos:** é usado o LED RGB da placa. O amarelo é obtido acendendo vermelho e verde juntos. São três threads, uma para cada estado luminoso (verde, amarelo, vermelho), e o mutex garante que só um estado fica ativo por vez. Para três LEDs físicos separados, basta ligar LEDs externos e trocar os pinos em `config.h`/`hw.c`.
+
 ## Arquitetura
 
 ```
@@ -49,4 +51,8 @@ src/
 ## Testes
 
 Plano completo (modelo V): [`testes/PLANO_DE_TESTES.md`](testes/PLANO_DE_TESTES.md).
-Testes unitários: mude `MODO_TESTE` em `src/config.h` para `MODO_TESTE_SO_CARRO` ou `MODO_TESTE_SO_PEDESTRE`.
+Testes unitários: mude `MODO_TESTE` em `src/config.h` para `MODO_TESTE_SO_CARRO` ou `MODO_TESTE_SO_PEDESTRE` (o outro semáforo vira um stub sem LEDs).
+
+## Validação cruzada com IA
+
+Revisão feita pelo ChatGPT; apontamentos e decisões em [`docs/validacao_ia.md`](docs/validacao_ia.md).

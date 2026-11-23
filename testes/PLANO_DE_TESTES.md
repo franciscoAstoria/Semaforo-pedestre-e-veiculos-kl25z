@@ -128,7 +128,7 @@ Serve para mostrar que os testes conseguem detectar um erro.
 | TS-N2 | R8 | Medir o vermelho do pedestre no noturno | 1 s aceso / 1 s apagado, junto com o amarelo |
 | TS-N3 | R11 | Observar os outros LEDs durante o noturno | carro verde, carro vermelho e pedestre verde apagados |
 | TS-N4 | R7, R8 | Medir o tempo entre `EVT CHAVE NOTURNO LIGADA` e `EVT MODO NOTURNO` | entra no fim do ciclo (até ~8 s), nunca no meio de uma travessia |
-| TS-N5 | R6, R11 | Desligar a chave e observar a volta | sai em até ~2 s; pedestre vermelho acende antes do carro verde |
+| TS-N5 | R6, R11 | Desligar a chave e observar a volta | `EVT MODO DIA` em até ~2 s; carro verde em até ~3 s, sempre depois do pedestre vermelho |
 
 ### 7.2 Botão de travessia
 **Procedimento:** com o sistema no modo dia, apertar o botão (a) no meio de um verde de carro, (b) durante o amarelo, (c) durante o vermelho, (d) várias vezes rápido durante um verde e (e) com o noturno ligado.
