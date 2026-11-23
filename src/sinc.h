@@ -35,4 +35,7 @@ extern int64_t         t0_noturno;     /* instante de referencia do pisca  */
 void entra_modo_noturno(void);
 void dormir_ate(int64_t instante_ms);
 
+extern struct k_sem  botao_travessia;   /* entradas -> carro verde          */
+extern volatile bool carro_verde_aceso; /* botao so vale com carro verde    */
+
 #endif /* SEMAFORO_SINC_H */

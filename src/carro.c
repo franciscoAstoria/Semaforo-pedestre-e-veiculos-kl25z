@@ -21,9 +21,17 @@ static void carro_verde_thread(void *p1, void *p2, void *p3)
         k_sem_take(&vez_carro_verde, K_FOREVER);
         k_mutex_lock(&mutex_carro, K_FOREVER);
 
+        k_sem_reset(&botao_travessia);   /* descarta pedido antigo */
+        carro_verde_aceso = true;
         led_set(CARRO_VERDE, true);
-        k_msleep(T_CARRO_VERDE_MS);
+        /* espera 3 s OU o botao de travessia, o que vier primeiro */
+        bool pelo_botao =
+            (k_sem_take(&botao_travessia, K_MSEC(T_CARRO_VERDE_MS)) == 0);
+        carro_verde_aceso = false;
         led_set(CARRO_VERDE, false);
+        if (pelo_botao) {
+            log_evento("VERDE ENCERRADO PELO BOTAO");
+        }
 
         k_mutex_unlock(&mutex_carro);
         k_sem_give(&vez_carro_amarelo);  /* passa sempre pelo amarelo */

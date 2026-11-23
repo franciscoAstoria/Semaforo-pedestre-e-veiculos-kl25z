@@ -29,6 +29,9 @@ volatile modo_t modo = MODO_DIA;
 volatile bool pedido_noturno;
 int64_t t0_noturno;
 
+K_SEM_DEFINE(botao_travessia, 0, 1);
+volatile bool carro_verde_aceso;
+
 /* Dorme ate um instante absoluto (evita acumular atraso no pisca). */
 void dormir_ate(int64_t instante_ms)
 {

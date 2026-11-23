@@ -121,6 +121,7 @@ int hw_init(void)
     gpio_pin_configure(gpio_b, PINO_PED_VERMELHO, GPIO_OUTPUT_LOW);
     gpio_pin_configure(gpio_d, PINO_PED_VERDE, GPIO_OUTPUT_LOW);
     gpio_pin_configure(gpio_a, PINO_CHAVE_NOTURNO, GPIO_INPUT | GPIO_PULL_UP);
+    gpio_pin_configure(gpio_d, PINO_BOTAO, GPIO_INPUT | GPIO_PULL_UP);
 
     pronto = true;
     return 0;
@@ -134,4 +135,9 @@ bool hw_pronto(void)
 bool hw_chave_noturno(void)
 {
     return gpio_pin_get_raw(gpio_a, PINO_CHAVE_NOTURNO) == 0;
+}
+
+bool hw_botao(void)
+{
+    return gpio_pin_get_raw(gpio_d, PINO_BOTAO) == 0;
 }

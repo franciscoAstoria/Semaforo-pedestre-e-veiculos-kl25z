@@ -19,6 +19,7 @@
 
 /* Entradas com pull-up interno: ativas quando ligadas ao GND. */
 #define PINO_CHAVE_NOTURNO  13  /* PTA13 - header D8 (fio/chave para GND = noturno) */
+#define PINO_BOTAO          4   /* PTD4  - header D2 (botao para GND) */
 
 /* ===================== TEMPOS (ms) ===================== */
 #define T_CARRO_VERDE_MS      3000
